@@ -2,7 +2,7 @@
 
 This repository contains the code required to reproduce the current paper plots.
 
-All scripts rely on .csv-files containing retro, gnn and truth variables. These are available on cobalt at:  XXXX 
+All scripts rely on .csv-files containing retro, gnn and truth variables. These are available on cobalt at:  /home/rorsoe/paper_data
 
 Note:
 Computing classification and performance plots is quick.
