@@ -54,6 +54,7 @@ def generate_file_name(plot_type):
 
 def move_old_plots(bias_filename, resolution_filename):
     files = os.listdir('plots')
+    os.makedirs('plots/old', exists_ok = True)
     for file in files:
         if '.png' in file:
             if file not in [bias_filename, resolution_filename]:
