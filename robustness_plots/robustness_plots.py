@@ -54,13 +54,18 @@ def generate_file_name(plot_type):
 
 def move_old_plots(bias_filename, resolution_filename):
     files = os.listdir('plots')
-    os.makedirs('plots/old', exists_ok = True)
+    os.makedirs('plots/old', exist_ok = True)
     for file in files:
         if '.png' in file:
             if file not in [bias_filename, resolution_filename]:
                 print('MOVING %s to old/%s'%(file,file))
                 os.rename('plots/' + file, "plots/old/" + file)
     return
+
+def remove_muons(data):
+    data = data.loc[abs(data['pid'] != 13), :]
+    data = data.sort_values('event_no').reset_index(drop = True)
+    return data
 
 def read_csv_and_make_statistics(data_folder):
     folders = os.listdir(data_folder)
@@ -81,6 +86,7 @@ def read_csv_and_make_statistics(data_folder):
     for folder in folders:
         print('Reading %s. %s folders left.'%(folder, count))
         data = pd.read_csv(data_folder + '/' + folder + '/' + 'everything.csv')
+        data = remove_muons(data)
         statistics['systematic'].append(folder)
         statistics['retro_bias_zenith'].append(np.percentile(calculate_residual(data, 'zenith', is_retro = True), 50))
         statistics['retro_bias_energy'].append(np.percentile(calculate_residual(data, 'energy', is_retro = True), 50))
@@ -196,6 +202,6 @@ def make_robustness_plots(data_folder, from_csv = False):
 
 if __name__ == '__main__':
     #data_nominal = 'plot_data_nominal_model.csv'
-    data_folder = '/groups/hep/pcs557/github/gnn_paper_plot_code/data'
+    data_folder = '/groups/hep/pcs557/phd/paper/paper_data/data'
 
     make_robustness_plots(data_folder, from_csv = True)
