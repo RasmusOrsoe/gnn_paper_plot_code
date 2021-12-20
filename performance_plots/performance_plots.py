@@ -4,6 +4,10 @@ import sqlite3
 import numpy as np
 from time import strftime,gmtime
 import os
+import matplotlib as mpl
+mpl.use('pdf')
+plt.rc('text', usetex=True)
+plt.rc('font', family='serif')
 
 from pathlib import Path
 from scipy import stats
@@ -161,6 +165,12 @@ def ExtractStatistics(data_raw,keys, key_bins, is_retro):
                             biases[key][str(pid)][str(interaction_type)]['16th'].append(np.percentile(bias_tmp_percent,16))
                             biases[key][str(pid)][str(interaction_type)]['50th'].append(np.percentile(bias_tmp_percent,50))
                             biases[key][str(pid)][str(interaction_type)]['84th'].append(np.percentile(bias_tmp_percent,84))
+                        elif key == 'angular_res':
+                            biases[key][str(pid)][str(interaction_type)]['width'].append(np.percentile(bias_tmp,50))
+                            biases[key][str(pid)][str(interaction_type)]['width_error'].append(CalculateWidthError(bias_tmp))
+                            biases[key][str(pid)][str(interaction_type)]['16th'].append(np.percentile(bias_tmp,16))
+                            biases[key][str(pid)][str(interaction_type)]['50th'].append(np.percentile(bias_tmp,50))
+                            biases[key][str(pid)][str(interaction_type)]['84th'].append(np.percentile(bias_tmp,84))
                         else:
                             biases[key][str(pid)][str(interaction_type)]['width'].append(CalculateWidth(bias_tmp))
                             biases[key][str(pid)][str(interaction_type)]['width_error'].append(CalculateWidthError(bias_tmp))
@@ -215,6 +225,13 @@ def ExtractStatistics(data_raw,keys, key_bins, is_retro):
                         biases[key]['all_pid'][str(interaction_type)]['16th'].append(np.percentile(bias_tmp_percent,16))
                         biases[key]['all_pid'][str(interaction_type)]['50th'].append(np.percentile(bias_tmp_percent,50))
                         biases[key]['all_pid'][str(interaction_type)]['84th'].append(np.percentile(bias_tmp_percent,84))
+                    elif key == 'angular_res':
+                        biases[key]['all_pid'][str(interaction_type)]['width'].append(np.percentile(bias_tmp,50))
+                        biases[key]['all_pid'][str(interaction_type)]['width_error'].append(CalculateWidthError(bias_tmp))
+                        biases[key]['all_pid'][str(interaction_type)]['16th'].append(np.percentile(bias_tmp,16))
+                        biases[key]['all_pid'][str(interaction_type)]['50th'].append(np.percentile(bias_tmp,50))
+                        biases[key]['all_pid'][str(interaction_type)]['84th'].append(np.percentile(bias_tmp,84))
+
                     else:
                         biases[key]['all_pid'][str(interaction_type)]['width'].append(CalculateWidth(bias_tmp))
                         biases[key]['all_pid'][str(interaction_type)]['width_error'].append(CalculateWidthError(bias_tmp))
@@ -267,6 +284,13 @@ def ExtractStatistics(data_raw,keys, key_bins, is_retro):
                     biases[key]['cascade']['16th'].append(np.percentile(bias_tmp_percent,16))
                     biases[key]['cascade']['50th'].append(np.percentile(bias_tmp_percent,50))
                     biases[key]['cascade']['84th'].append(np.percentile(bias_tmp_percent,84))
+                elif key == 'angular_res':
+                    biases[key]['cascade']['width'].append(np.percentile(bias_tmp,50))
+                    biases[key]['cascade']['width_error'].append(CalculateWidthError(bias_tmp))
+                    biases[key]['cascade']['16th'].append(np.percentile(bias_tmp,16))
+                    biases[key]['cascade']['50th'].append(np.percentile(bias_tmp,50))
+                    biases[key]['cascade']['84th'].append(np.percentile(bias_tmp,84))
+
                 else:
                     biases[key]['cascade']['width'].append(CalculateWidth(bias_tmp))
                     biases[key]['cascade']['width_error'].append(CalculateWidthError(bias_tmp))
@@ -415,11 +439,16 @@ def make_resolution_plots(targets, plot_config, include_retro, track_cascade = F
     data = pd.read_csv(plot_config['data'])
     data = transform_energy(data)
     data = remove_muons(data)
+
+    width = 3.176
+    height = 3.176
+
     key_limits = plot_config['width']
     key_bins = plot_config['key_bins']
     biases = CalculateStatistics(data,targets, key_bins,include_retro = True)
     for key in biases['dynedge'].keys():
-        fig = plt.figure()
+        fig = plt.figure(constrained_layout = True)
+        fig.set_size_inches(width, height)
         ax1 = plt.subplot2grid((6, 6), (0, 0), colspan = 6, rowspan= 4)
         ax2 = plt.subplot2grid((6, 6), (4, 0), colspan = 6, rowspan= 2)
         pid_count = 0
@@ -439,8 +468,8 @@ def make_resolution_plots(targets, plot_config, include_retro, track_cascade = F
             #        width = 0.25)
             print(len(plot_data_track['width']))
             print(len(plot_data_track['mean']))
-            ax1.errorbar(plot_data_track['mean'],plot_data_track['width'],plot_data_track['width_error'],linestyle='dotted',fmt = 'o',capsize = 10, color = 'blue', label = 'GCN-all Track')
-            ax1.errorbar(plot_data_cascade['mean'],plot_data_cascade['width'],plot_data_cascade['width_error'],linestyle='solid',fmt = 'o',capsize = 10, color = 'darkblue', label = 'GCN-all Cascade')
+            ax1.errorbar(plot_data_track['mean'],plot_data_track['width'],plot_data_track['width_error'],linestyle='dotted',fmt = 'o',capsize = 10, color = 'blue', label = 'GCN Track')
+            ax1.errorbar(plot_data_cascade['mean'],plot_data_cascade['width'],plot_data_cascade['width_error'],linestyle='solid',fmt = 'o',capsize = 10, color = 'darkblue', label = 'GCN Cascade')
             if include_retro:
                 ax1.errorbar(plot_data_retro_track['mean'],plot_data_retro_track['width'],plot_data_retro_track['width_error'],linestyle='dotted',fmt = 'o',capsize = 10, color = 'orange', label = 'RetroReco Track')
                 ax1.errorbar(plot_data_retro_cascade['mean'],plot_data_retro_cascade['width'],plot_data_retro_cascade['width_error'],linestyle='solid',fmt = 'o',capsize = 10, color = 'darkorange' , label = 'RetroReco Cascade')
@@ -451,27 +480,143 @@ def make_resolution_plots(targets, plot_config, include_retro, track_cascade = F
             ax2.plot(plot_data_track['mean'], np.repeat(0, len(plot_data_track['mean'])), color = 'black', lw = 2)
             #rel_imp_error = abs(1 - np.array(plot_data['width'])/np.array(plot_data_retro['width']))*np.sqrt((np.array(plot_data_retro['width_error'])/np.array(plot_data_retro['width']))**2 + (np.array(plot_data['width_error'])/np.array(plot_data['width']))**2)
             if include_retro:
-                ax2.errorbar(plot_data_track['mean'],1 - np.array(plot_data_track['width'])/np.array(plot_data_retro_track['width']),CalculateRelativeImprovementError(1 - np.array(plot_data_track['width'])/np.array(plot_data_retro_track['width']), plot_data_track['width'], plot_data_track['width_error'], plot_data_retro_track['width'], plot_data_retro_track['width_error']),marker='o', capsize = 10,markeredgecolor='black', color = 'limegreen', label = 'track',linestyle='dotted')
-                ax2.errorbar(plot_data_cascade['mean'],1 - np.array(plot_data_cascade['width'])/np.array(plot_data_retro_cascade['width']),CalculateRelativeImprovementError(1 - np.array(plot_data_cascade['width'])/np.array(plot_data_retro_cascade['width']), plot_data_cascade['width'], plot_data_cascade['width_error'], plot_data_retro_cascade['width'], plot_data_retro_cascade['width_error']),marker='o', capsize = 10,markeredgecolor='black', color = 'springgreen', label = 'cascade',linestyle='solid')
-                ax2.legend()
+                ax2.errorbar(plot_data_track['mean'],(1 - np.array(plot_data_track['width'])/np.array(plot_data_retro_track['width']))*100,CalculateRelativeImprovementError(1 - np.array(plot_data_track['width'])/np.array(plot_data_retro_track['width']), plot_data_track['width'], plot_data_track['width_error'], plot_data_retro_track['width'], plot_data_retro_track['width_error'])*100,marker='o', capsize = 10,markeredgecolor='black', color = 'limegreen', label = 'track',linestyle='dotted')
+                ax2.errorbar(plot_data_cascade['mean'],(1 - np.array(plot_data_cascade['width'])/np.array(plot_data_retro_cascade['width']))*100,CalculateRelativeImprovementError(1 - np.array(plot_data_cascade['width'])/np.array(plot_data_retro_cascade['width']), plot_data_cascade['width'], plot_data_cascade['width_error'], plot_data_retro_cascade['width'], plot_data_retro_cascade['width_error'])*100,marker='o', capsize = 10,markeredgecolor='black', color = 'springgreen', label = 'cascade',linestyle='solid')
+                ax2.legend(fontsize = 6)
             #plt.title('$\\nu_{v,u,e}$', size = 20)
-            ax1.tick_params(axis='x', labelsize=10)
-            ax1.tick_params(axis='y', labelsize=10)
+            ax1.tick_params(axis='x', labelsize=6)
+            ax1.tick_params(axis='y', labelsize=6)
+            ax2.tick_params(axis='x', labelsize=6)
+            ax2.tick_params(axis='y', labelsize=6)
             ax1.set_xlim(key_limits[key]['x'])
             ax2.set_xlim(key_limits[key]['x'])
-            ax2.set_ylim([-0.40,0.40])
-            ax1.legend()
+            ax2.set_ylim([-40,40])
+
+            ylbl = ax1.yaxis.get_label()
+            ylbl_target = ax2.yaxis.get_label()
+            ax1.yaxis.set_label_coords(-0.1,ylbl.get_position()[1])
+            ax2.yaxis.set_label_coords(-0.1,ylbl_target.get_position()[1])
+            ax1.legend(fontsize = 6)
             if key == 'energy':
-                unit_tag = '[%]'
+                unit_tag = '[\\%]'
             else:
                 unit_tag = '[deg.]'
+            if key == 'angular_res':
+                key = 'direction'
+            if key == 'XYZ':
+                key = 'vertex'
+                unit_tag = '[m]'
+
+
             plt.tick_params(right=False,labelright=False)
-            ax1.set_ylabel('%s Resolution %s'%(key, unit_tag), size = 15)
-            ax2.set_xlabel('$Energy_{log10}$ [GeV]', size = 15)
-            ax2.set_ylabel('Rel. Impro.', size = 15)  
-            
-            fig.suptitle('%s Performance'%key, size = 20)
-            fig.savefig('performance_track_cascade_outline_presentation_%s.png'%key)
+            ax1.set_ylabel('%s Resolution %s'%(key.capitalize(), unit_tag), size = 8)
+            ax2.set_xlabel('Energy$_{\\rm log10}$' + ' [GeV]', size = 8)
+            ax2.set_ylabel('Rel. Impro.', size = 8)  
+
+
+            fig.suptitle('%s Resolution'%key.capitalize(), size = 12)
+            fig.savefig('performance_track_cascade_outline_presentation_%s.pdf'%key,bbox_inches="tight")
+
+    return fig
+
+def get_axis(key, fig, gs):
+    if key == 'energy':
+        ax1 = fig.add_subplot(gs[0:4, 0:6])
+        ax2 = fig.add_subplot(gs[4:6, 0:6])
+    if key == 'zenith':
+        ax1 = fig.add_subplot(gs[6:10, 0:6])
+        ax2 = fig.add_subplot(gs[10:12, 0:6])
+    if key == 'angular_res':
+        ax1 = fig.add_subplot(gs[0:4, 6:12])
+        ax2 = fig.add_subplot(gs[4:6, 6:12])
+    if key == 'XYZ':
+        ax1 = fig.add_subplot(gs[6:10, 6:12])
+        ax2 = fig.add_subplot(gs[10:12, 6:12])
+    return ax1, ax2
+
+    
+    return
+
+def make_combined_resolution_plot(targets, plot_config, include_retro, track_cascade = False):
+    data = pd.read_csv(plot_config['data'])
+    data = transform_energy(data)
+    data = remove_muons(data)
+
+    width = 2*3.176
+    height = 2*3.176
+
+    key_limits = plot_config['width']
+    key_bins = plot_config['key_bins']
+    biases = CalculateStatistics(data,targets, key_bins,include_retro = True)
+    fig = plt.figure(constrained_layout = True)
+    fig.set_size_inches(width, height)
+    gs = fig.add_gridspec(6*2, 6*2)
+    for key in biases['dynedge'].keys():
+        ax1, ax2 = get_axis(key, fig, gs)
+        pid_count = 0
+        pid = 'track'
+        interaction_type = str(1.0)
+        plot_data_track = biases['dynedge'][key][str(14.0)][str(1.0)]
+        plot_data_cascade = biases['dynedge'][key]['cascade']
+        if include_retro:
+            plot_data_retro_track = biases['retro'][key][str(14.0)][str(1.0)]
+            plot_data_retro_cascade = biases['retro'][key]['cascade']
+        if len(plot_data_track['mean']) != 0:
+            print(len(plot_data_track['width']))
+            print(len(plot_data_track['mean']))
+            ax1.errorbar(plot_data_track['mean'],plot_data_track['width'],plot_data_track['width_error'],linestyle='dotted',fmt = 'o',capsize = 10, color = 'blue', label = 'GCN Track')
+            ax1.errorbar(plot_data_cascade['mean'],plot_data_cascade['width'],plot_data_cascade['width_error'],linestyle='solid',fmt = 'o',capsize = 10, color = 'darkblue', label = 'GCN Cascade')
+            if include_retro:
+                ax1.errorbar(plot_data_retro_track['mean'],plot_data_retro_track['width'],plot_data_retro_track['width_error'],linestyle='dotted',fmt = 'o',capsize = 10, color = 'orange', label = 'RetroReco Track')
+                ax1.errorbar(plot_data_retro_cascade['mean'],plot_data_retro_cascade['width'],plot_data_retro_cascade['width_error'],linestyle='solid',fmt = 'o',capsize = 10, color = 'darkorange' , label = 'RetroReco Cascade')
+            labels = [item.get_text() for item in ax1.get_xticklabels()]
+            empty_string_labels = ['']*len(labels)
+            ax1.set_xticklabels(empty_string_labels)
+            ax1.grid()
+            ax2.plot(plot_data_track['mean'], np.repeat(0, len(plot_data_track['mean'])), color = 'black', lw = 2)
+            #rel_imp_error = abs(1 - np.array(plot_data['width'])/np.array(plot_data_retro['width']))*np.sqrt((np.array(plot_data_retro['width_error'])/np.array(plot_data_retro['width']))**2 + (np.array(plot_data['width_error'])/np.array(plot_data['width']))**2)
+            if include_retro:
+                ax2.errorbar(plot_data_track['mean'],(1 - np.array(plot_data_track['width'])/np.array(plot_data_retro_track['width']))*100,CalculateRelativeImprovementError(1 - np.array(plot_data_track['width'])/np.array(plot_data_retro_track['width']), plot_data_track['width'], plot_data_track['width_error'], plot_data_retro_track['width'], plot_data_retro_track['width_error'])*100,marker='o', capsize = 10,markeredgecolor='black', color = 'limegreen', label = 'track',linestyle='dotted')
+                ax2.errorbar(plot_data_cascade['mean'],(1 - np.array(plot_data_cascade['width'])/np.array(plot_data_retro_cascade['width']))*100,CalculateRelativeImprovementError(1 - np.array(plot_data_cascade['width'])/np.array(plot_data_retro_cascade['width']), plot_data_cascade['width'], plot_data_cascade['width_error'], plot_data_retro_cascade['width'], plot_data_retro_cascade['width_error'])*100,marker='o', capsize = 10,markeredgecolor='black', color = 'springgreen', label = 'cascade',linestyle='solid')
+                ax2.legend(fontsize = 6)
+            #plt.title('$\\nu_{v,u,e}$', size = 20)
+            ax1.tick_params(axis='x', labelsize=6)
+            ax1.tick_params(axis='y', labelsize=6)
+            ax2.tick_params(axis='x', labelsize=6)
+            ax2.tick_params(axis='y', labelsize=6)
+            ax1.set_xlim(key_limits[key]['x'])
+            ax2.set_xlim(key_limits[key]['x'])
+            ax2.set_ylim([-40,40])
+
+            ylbl = ax1.yaxis.get_label()
+            ylbl_target = ax2.yaxis.get_label()
+            ax1.yaxis.set_label_coords(-0.1,ylbl.get_position()[1])
+            ax2.yaxis.set_label_coords(-0.1,ylbl_target.get_position()[1])
+            ax1.legend(fontsize = 6)
+            if key == 'energy':
+                unit_tag = '[\\%]'
+            else:
+                unit_tag = '[deg.]'
+            if key == 'angular_res':
+                key = 'direction'
+            if key == 'XYZ':
+                key = 'vertex'
+                unit_tag = '[m]'
+
+
+            plt.tick_params(right=False,labelright=False)
+            ax1.set_ylabel('%s Resolution %s'%(key.capitalize(), unit_tag), size = 8)
+            ax2.set_ylabel('Rel. Impro.', size = 8)
+            if key == 'energy' or key == 'direction':
+                labels = [item.get_text() for item in ax2.get_xticklabels()]
+                empty_string_labels = ['']*len(labels)
+                ax2.set_xticklabels(empty_string_labels)  
+            else:
+                ax2.set_xlabel('Energy$_{\\rm log10}$' + ' [GeV]', size = 8)
+
+
+    fig.suptitle('Resolution Performance', size = 12)
+    fig.savefig('performance_track_cascade_combined.pdf',bbox_inches="tight")
 
     return fig
 
@@ -487,8 +632,9 @@ key_bins = { 'energy': np.arange(0, 3.25, 0.25),
                 'azimuth': np.arange(0, 2*180, 20) }
 
 
-plot_config = {'data': '/groups/hep/pcs557/github/gnn_paper_plot_code/data/0000/everything.csv',
+plot_config = {'data': '/groups/hep/pcs557/github/gnn_paper_plot_code/data/0000/reconstruction.csv',
                 'width': width_limits,
                 'key_bins': key_bins}
 #['zenith', 'energy','azimuth' ,'angular_res', 'XYZ']
-make_resolution_plots(targets = ['zenith', 'energy','azimuth' ,'angular_res', 'XYZ'], plot_config = plot_config, include_retro= True, track_cascade = True)
+#make_resolution_plots(targets = ['zenith', 'energy','azimuth' ,'angular_res', 'XYZ'], plot_config = plot_config, include_retro= True, track_cascade = True)
+make_combined_resolution_plot(targets = ['zenith', 'energy' ,'angular_res', 'XYZ'], plot_config = plot_config, include_retro= True, track_cascade = True)
