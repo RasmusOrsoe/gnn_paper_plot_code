@@ -578,18 +578,18 @@ def make_resolution_plots(targets, plot_config, include_retro, track_cascade = F
             #        align = 'center',
             #        width = 0.25)
             if mode == 'errorbar':
-                ax1.errorbar(plot_data_track['mean'],plot_data_track['width'],plot_data_track['width_error'],linestyle='dotted',fmt = 'o',capsize = capsize, markersize=markersize, color = 'tab:blue', alpha = 1 ,label = 'GraphNeT Track')
-                ax1.errorbar(plot_data_cascade['mean'],plot_data_cascade['width'],plot_data_cascade['width_error'],linestyle='solid',fmt = 'o',capsize = capsize, markersize=markersize, color = 'tab:blue', alpha = 0.5,  label = 'GraphNeT Cascade')
+                ax1.errorbar(plot_data_track['mean'],plot_data_track['width'],plot_data_track['width_error'],linestyle='dotted',fmt = 'o',capsize = capsize, markersize=markersize, color = 'tab:blue', alpha = 1 ,label = 'dynedge Track')
+                ax1.errorbar(plot_data_cascade['mean'],plot_data_cascade['width'],plot_data_cascade['width_error'],linestyle='solid',fmt = 'o',capsize = capsize, markersize=markersize, color = 'tab:blue', alpha = 0.5,  label = 'dynedge Cascade')
             if mode == 'area':
                 ax1.plot(plot_data_track['mean'],plot_data_track['width'],linestyle='solid', lw = 0.5, color = 'black', alpha = 1)
-                #ax1.plot( plot_data_track['mean'], plot_data_track['width'] - plot_data_track['width_error'],linestyle='solid', color = 'tab:blue', alpha = 1, lw = 0.25,label = 'GraphNeT Track')
+                #ax1.plot( plot_data_track['mean'], plot_data_track['width'] - plot_data_track['width_error'],linestyle='solid', color = 'tab:blue', alpha = 1, lw = 0.25,label = 'dynedge Track')
                 #ax1.plot( plot_data_track['mean'], plot_data_track['width'] + plot_data_track['width_error'],linestyle='solid', color = 'tab:blue', alpha = 1, lw = 0.25)
-                ax1.fill_between(plot_data_track['mean'],plot_data_track['width'] - plot_data_track['width_error'], plot_data_track['width'] + plot_data_track['width_error'],color = 'tab:blue', alpha = 0.8 ,label = 'GraphNeT Track')
+                ax1.fill_between(plot_data_track['mean'],plot_data_track['width'] - plot_data_track['width_error'], plot_data_track['width'] + plot_data_track['width_error'],color = 'tab:blue', alpha = 0.8 ,label = 'dynedge Track')
                 
                 ax1.plot(plot_data_cascade['mean'],plot_data_cascade['width'],linestyle='dashed', color = 'tab:blue', lw = 0.5, alpha = 1)
                 #ax1.plot(plot_data_cascade['mean'], plot_data_cascade['width']- plot_data_cascade['width_error'], linestyle='solid',color = 'tab:blue', alpha = 0.5, lw = 1)
                 #ax1.plot(plot_data_cascade['mean'], plot_data_cascade['width']+ plot_data_cascade['width_error'],linestyle='solid', color = 'tab:blue', alpha = 0.5, lw = 1)
-                ax1.fill_between(plot_data_cascade['mean'], plot_data_cascade['width']- plot_data_cascade['width_error'], plot_data_cascade['width']+ plot_data_cascade['width_error'], color = 'tab:blue', alpha = 0.3, label = 'GraphNeT Cascade' )
+                ax1.fill_between(plot_data_cascade['mean'], plot_data_cascade['width']- plot_data_cascade['width_error'], plot_data_cascade['width']+ plot_data_cascade['width_error'], color = 'tab:blue', alpha = 0.3, label = 'dynedge Cascade' )
             if include_retro:
                 if mode == 'errorbar':
                     ax1.errorbar(plot_data_retro_track['mean'],plot_data_retro_track['width'],plot_data_retro_track['width_error'],linestyle='dotted',fmt = 'o',capsize = capsize, markersize=markersize, color = 'tab:orange', alpha = 1 ,label = 'Retro Track')
@@ -693,12 +693,12 @@ def make_combined_resolution_plot(targets, plot_config, include_retro, track_cas
 
     key_limits = plot_config['width']
     key_bins = plot_config['key_bins']
-    if exists('performance_statistics.pickle'):
-        with open('performance_statistics.pickle', 'rb') as handle:
+    if exists('/home/iwsatlas1/oersoe/phd/paper/paper_data/plots/performance_statistics.pickle'):
+        with open('/home/iwsatlas1/oersoe/phd/paper/paper_data/plots/performance_statistics.pickle', 'rb') as handle:
             biases = pickle.load(handle)
     else:
         biases = CalculateStatistics(data,targets, key_bins,include_retro = True)
-        with open('performance_statistics.pickle', 'wb') as handle:
+        with open('/home/iwsatlas1/oersoe/phd/paper/paper_data/plots/performance_statistics.pickle', 'wb') as handle:
             pickle.dump(biases, handle, protocol=pickle.HIGHEST_PROTOCOL)
     fig = plt.figure(constrained_layout = True)
     fig.set_size_inches(width, height)
@@ -729,14 +729,14 @@ def make_combined_resolution_plot(targets, plot_config, include_retro, track_cas
         if len(plot_data_track['mean']) != 0:
             if mode == 'area':
                 ax1.plot(plot_data_track['mean'],plot_data_track['width'],linestyle='solid', lw = 0.5, color = 'black', alpha = 1)
-                #ax1.plot( plot_data_track['mean'], plot_data_track['width'] - plot_data_track['width_error'],linestyle='solid', color = 'tab:blue', alpha = 1, lw = 0.25,label = 'GraphNeT Track')
+                #ax1.plot( plot_data_track['mean'], plot_data_track['width'] - plot_data_track['width_error'],linestyle='solid', color = 'tab:blue', alpha = 1, lw = 0.25,label = 'dynedge Track')
                 #ax1.plot( plot_data_track['mean'], plot_data_track['width'] + plot_data_track['width_error'],linestyle='solid', color = 'tab:blue', alpha = 1, lw = 0.25)
-                l1 =  ax1.fill_between(plot_data_track['mean'],plot_data_track['width'] - plot_data_track['width_error'], plot_data_track['width'] + plot_data_track['width_error'],color = 'tab:blue', alpha = 0.8 ,label = 'GraphNeT Track')
+                l1 =  ax1.fill_between(plot_data_track['mean'],plot_data_track['width'] - plot_data_track['width_error'], plot_data_track['width'] + plot_data_track['width_error'],color = 'tab:blue', alpha = 0.8 ,label = 'dynedge Track')
                 
                 ax1.plot(plot_data_cascade['mean'],plot_data_cascade['width'],linestyle='dashed', color = 'tab:blue', lw = 0.5, alpha = 1)
                 #ax1.plot(plot_data_cascade['mean'], plot_data_cascade['width']- plot_data_cascade['width_error'], linestyle='solid',color = 'tab:blue', alpha = 0.5, lw = 1)
                 #ax1.plot(plot_data_cascade['mean'], plot_data_cascade['width']+ plot_data_cascade['width_error'],linestyle='solid', color = 'tab:blue', alpha = 0.5, lw = 1)
-                l2 = ax1.fill_between(plot_data_cascade['mean'], plot_data_cascade['width']- plot_data_cascade['width_error'], plot_data_cascade['width']+ plot_data_cascade['width_error'], color = 'tab:blue', alpha = 0.3, label = 'GraphNeT Cascade' )
+                l2 = ax1.fill_between(plot_data_cascade['mean'], plot_data_cascade['width']- plot_data_cascade['width_error'], plot_data_cascade['width']+ plot_data_cascade['width_error'], color = 'tab:blue', alpha = 0.3, label = 'dynedge Cascade' )
             if include_retro:
                 if mode == 'area':
                     ax1.plot(plot_data_retro_track['mean'],plot_data_retro_track['width'],linestyle='solid', color = 'black', lw = 0.5, alpha = 1)
@@ -775,7 +775,7 @@ def make_combined_resolution_plot(targets, plot_config, include_retro, track_cas
 
             if key == 'energy':
                 unit_tag = '(%)'
-                ax1.legend([l1,l2,l3,l4,l5,l6], ['GraphNet Track','GraphNet Cascade', 'Retro Track','Retro Cascade', 'Track', 'Cascade'], ncol = 1, fontsize = 8, frameon = False)
+                ax1.legend([l1,l2,l3,l4,l5,l6], ['dynedge Track','dynedge Cascade', 'Retro Track','Retro Cascade', 'Track', 'Cascade'], ncol = 1, fontsize = 8, frameon = False)
             else:
                 unit_tag = '(deg.)'
             if key == 'angular_res':
